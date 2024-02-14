@@ -10,4 +10,4 @@ Maintainer
 Contributors
 ------------
 
-None yet. Why not be the first? See: CONTRIBUTING.rst
+* Tanaporn Na Narong <tn2539@columbia.edu>
