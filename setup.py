@@ -42,7 +42,8 @@ setup(
     name="ml4ms",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="Python package for facilitating machine learning tasks on collections of materials data, especially including measured spectra.",
+    description="Python package for facilitating machine learning tasks on collections of materials data, "
+    "especially including measured spectra.",
     long_description=readme,
     author="Billingegroup",
     author_email="sb2896@columbia.edu",
