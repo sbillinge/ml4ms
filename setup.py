@@ -47,7 +47,7 @@ setup(
     long_description=readme,
     author="Billingegroup",
     author_email="sb2896@columbia.edu",
-    url="https://github.com/sbillinge/ml4ms",
+    url="https://github.com/Billingegroup/ml4ms",
     python_requires=">={}".format(".".join(str(n) for n in min_version)),
     packages=find_packages(exclude=["docs", "tests"]),
     entry_points={
