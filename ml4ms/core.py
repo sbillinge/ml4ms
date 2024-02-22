@@ -18,3 +18,12 @@ class Dataset:
         """
         for key, value in new_data.items():
             self.dataset[key].update(value)
+
+
+if __name__ == "__main__":
+    d = Dataset()
+    d.dataset = {'a': {'a': 1, 'b': 2}, 'b': {'a': 3, 'b': 4}}
+    actual = d.merge_new_data_into_dataset({'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}})
+    expected = {'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}}
+    assert actual == expected
+    print("Passed all tests!")
