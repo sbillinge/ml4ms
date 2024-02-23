@@ -22,8 +22,8 @@ class Dataset:
 
 if __name__ == "__main__":
     d = Dataset()
-    d.dataset = {'a': {'a': 1, 'b': 2}, 'b': {'a': 3, 'b': 4}}
-    actual = d.merge_new_data_into_dataset({'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}})
-    expected = {'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}}
-    assert actual == expected
-    print("Passed all tests!")
+    d.dataset = {"a": {"a": 1, "b": 2}, "b": {"a": 3, "b": 4}}
+    d.merge_new_data({"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}})
+    expected = {"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}}
+    assert d.dataset == expected
+    # print("Passed all tests!")
