@@ -9,7 +9,7 @@ class Dataset:
         Parameters
         ----------
         new_data: dict
-            the first argument is a dictionary with the same format as self.dataset
+            The first argument is a dictionary with the same format as self.dataset
             {mat_id_1 : {attribute_1: , attribute_2:, ...}, ...}
 
         Returns
@@ -17,7 +17,9 @@ class Dataset:
             nothing
         """
         for key, value in new_data.items():
-            self.dataset[key].update(value)
+            # merge only if key exists
+            if key in self.dataset:
+                self.dataset[key].update(value)
 
 
 if __name__ == "__main__":
