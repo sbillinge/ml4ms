@@ -1,0 +1,8 @@
+id1:
+  description: thing1
+  name: test
+  version: 1.0.0
+id2:
+  description: thing2
+  name: test
+  version: 1.0.0
