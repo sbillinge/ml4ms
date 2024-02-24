@@ -1,0 +1,8 @@
+{"client": "fs",
+ "databases": [
+  {"name": "test_db",
+   "url": ".",
+   "path": "db",
+   "public": false
+  }
+ ]}
