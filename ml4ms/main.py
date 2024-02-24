@@ -53,6 +53,12 @@ def tinascode(rc):
     client.insert_one("test_db", "test_coll", newdoc)
     print(client["test_db"]["test_coll"])
 
+    # get a document using its id
+    print("\n")
+    print("get id1 by using its id")
+    found_doc = client["test_db"]["test_coll"].get("id1")
+    print(found_doc)
+
     # find a document by a filter
     print("\n")
     print("find id1 by filtering for the (first) doc with name test1")
