@@ -40,3 +40,19 @@ an example is below:
        }
      ]
   }
+
+Steps to use it this way:
+=========================
+
+1. install the package in your environment.  cd to ml4ms directory and run `pip install -e .` (you will have to do this again to update it)
+
+2. to use it the first time
+ 1. create a sandbox directory where you want to play
+ 2. put a file called ml4msrc.json in it with a client and a database
+ 3. create a folder called `db` in that folder
+ 4. in the folder called `db` put all the collections you want in different files.
+
+3. ok its all set up, now whenever you want to use it
+ 1. modify code in you the tinacode script (it will have a new name)
+ 2. open a terminal, navigate to the directory containing the `ml4msrc.json` file
+ 6. run `ml4ms` and it will run the code (you can do this from your IDE but you will have to set it up (`run` in PyCharm) to run in the sandbox directory
