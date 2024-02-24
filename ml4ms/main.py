@@ -31,7 +31,39 @@ def main(args=None):
 
 
 def tinascode(rc):
-    print(rc.client["test_db"]["test_coll"].get("id1"))
+    """
+    This is where you will put your code. It could be in a different module and just get imported here.  We can
+    (and should) change the name of course, but this is just an example so you can see how it works.
+
+    It is set up rn so we can have more than one db, but we will probably only be using it with one database.  We
+    can decide if we want to simplify it in this way, in which case we wouldn't have to reference the db always.
+
+    Note that updates, inserts etc. modify the database.  We need to be careful how we handle this as it will make
+    your code behave differently each time you run it.  We would need to separate tasks of building the database
+    and the subsequent training.  I think it can work well, but it means working a bit differently than we do now.
+    """
+    client = rc.client
+    print("print the collection called test_coll from the test_db database")
+    print(client["test_db"]["test_coll"])
+
+    # add a new doc to test_coll
+    print("\n")
+    print("test_coll after the new doc is added")
+    newdoc = {"_id": "id_new", "name": "name_new", "newthing": "new_newthing"}
+    client.insert_one("test_db", "test_coll", newdoc)
+    print(client["test_db"]["test_coll"])
+
+    # find a document by a filter
+    print("\n")
+    print("find id1 by filtering for the (first) doc with name test1")
+    found_doc = client.find_one("test_db", "test_coll", {"name": "test1"})
+    print(found_doc)
+
+    # update something in an existing doc
+    print("\n")
+    print("update id1 after finding it with the filter")
+    client.update_one("test_db", "test_coll", {"name": "test1"}, {"description": "updated description"})
+    print(client["test_db"]["test_coll"])
 
 
 if __name__ == "__main__":
