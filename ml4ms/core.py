@@ -9,7 +9,7 @@ class Dataset:
         Parameters
         ----------
         new_data: dict
-            the first argument is a dictionary with the same format as self.dataset
+            The first argument is a dictionary with the same format as self.dataset
             {mat_id_1 : {attribute_1: , attribute_2:, ...}, ...}
 
         Returns
@@ -17,13 +17,15 @@ class Dataset:
             nothing
         """
         for key, value in new_data.items():
-            self.dataset[key].update(value)
+            # merge only if key exists
+            if key in self.dataset:
+                self.dataset[key].update(value)
 
 
 if __name__ == "__main__":
     d = Dataset()
-    d.dataset = {'a': {'a': 1, 'b': 2}, 'b': {'a': 3, 'b': 4}}
-    actual = d.merge_new_data_into_dataset({'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}})
-    expected = {'a': {'a': 5, 'b': 6}, 'b': {'a': 7, 'b': 8}}
-    assert actual == expected
-    print("Passed all tests!")
+    d.dataset = {"a": {"a": 1, "b": 2}, "b": {"a": 3, "b": 4}}
+    d.merge_new_data({"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}})
+    expected = {"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}}
+    assert d.dataset == expected
+    # print("Passed all tests!")
