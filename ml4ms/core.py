@@ -22,10 +22,16 @@ class Dataset:
                 self.dataset[key].update(value)
 
 
-if __name__ == "__main__":
-    d = Dataset()
-    d.dataset = {"a": {"a": 1, "b": 2}, "b": {"a": 3, "b": 4}}
-    d.merge_new_data({"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}})
-    expected = {"a": {"a": 5, "b": 6}, "b": {"a": 7, "b": 8}}
-    assert d.dataset == expected
-    # print("Passed all tests!")
+def merge_new_data(rc, db, coll, new_coll):
+    for doc in new_coll.values():
+        if doc.get("_id") in rc.client[db][coll].keys():
+            rc.client.update_one(db, coll, {"_id": doc["_id"]}, doc)
+        else:
+            rc.client.insert_one(db, coll, doc)
+
+
+def clone_collection(rc, db, existing_coll, new_coll_name=None):
+    # if new_coll_name is None:
+    #    new_coll_name =
+    # rc.client.
+    pass
