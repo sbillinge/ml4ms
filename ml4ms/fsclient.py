@@ -58,27 +58,6 @@ def _id_key(doc):
     return doc["_id"]
 
 
-def load_json(filename):
-    """Loads a JSON file and returns a dict of its documents.
-
-    Expects one document per line in the file with the form:
-    {'_id': '<id>', 'field1':'value1', 'field2':'value2'}
-    """
-    docs = {}
-    with open(filename, "r", encoding="utf-8") as fh:
-        #     lines = fh.readlines()
-        # for line in lines:
-        #     doc = json.loads(line)
-        docs = json.load(fh)
-    for key, doc in docs.items():
-        try:
-            doc["date"] = datetime.date.fromisoformat(doc["date"])
-        except KeyError:
-            pass
-        doc["_id"] = key
-    return docs
-
-
 def load_json_collection(filename):
     """Loads a collection in hte form of a set of json objects, one per line in the
      file and returns a dict of its documents.
@@ -146,7 +125,7 @@ def dump_yaml(filename, docs, inst=None):
 
 def json_to_yaml(inp, out):
     """Converts a JSON file to a YAML one."""
-    docs = load_json(inp)
+    docs = load_json_collection(inp)
     dump_yaml(out, docs)
 
 
@@ -192,7 +171,7 @@ class FileSystemClient:
             base, ext = os.path.splitext(collfilename)
             self._collfiletypes[base] = "json"
             print("loading " + f + "...", file=sys.stderr)
-            dbs[db["name"]][base] = load_json(f)
+            dbs[db["name"]][base] = load_json_collection(f)
 
     def load_yaml(self, db, dbpath):
         """Loads the YAML part of a database."""
