@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "ml4ms"
 version = "0.1.0"
 authors = [
-  { name="Tanaporn Na Narong", email="" },
+  { name="Tanaporn Na Narong", email="tn2539@columbia.edu" },
   { name="Simon J.L. Billinge group", email="simon.billinge@gmail.com" },
 ]
 maintainers = [
-  { name="Tanaporn Na Narong", email="" },
+  { name="Tanaporn Na Narong", email="tn2539@columbia.edu" },
   { name="Simon J.L. Billinge group", email="simon.billinge@gmail.com" },
 ]
 description = "Python package for facilitating machine learning tasks on collections of materials data, especially including measured spectra."
@@ -18,7 +18,7 @@ keywords = ["materials science", "machine learning", "powder diffraction", "atom
 readme = "README.rst"
 requires-python = ">=3.10"
 classifiers = [
-        'Development Status :: 2 - Pre-Alpha'
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
@@ -42,6 +42,9 @@ where = ["."]  # list of folders that contain the packages (["."] by default)
 include = ["*"]  # package names should match these glob patterns (["*"] by default)
 exclude = ["tests"]  # exclude packages matching these glob patterns (empty by default)
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
 ml4ms = "ml4ms.main:main"
