@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from ml4ms.fsclient import date_encoder, dump_json, load_json
+from ml4ms.fsclient import date_encoder, dump_json_collection, load_json, load_json_collection
 
 
 def test_date_encoder():
@@ -15,7 +15,7 @@ def test_date_encoder():
     assert date_encoder(time) == "2021-05-18T06:28:21.504549"
 
 
-def test_dump_json():
+def test_dump_json_collection():
     doc = {
         "first": {"_id": "first", "name": "me", "date": datetime.date(2021, 5, 1), "test_list": [5, 4]},
         "second": {"_id": "second"},
@@ -23,7 +23,7 @@ def test_dump_json():
     json_doc = '{"_id": "first", "date": "2021-05-01", "name": "me", "test_list": [5, 4]}\n{"_id": "second"}'
     temp_dir = Path(tempfile.gettempdir())
     filename = temp_dir / "test.json"
-    dump_json(filename, doc, date_handler=date_encoder)
+    dump_json_collection(filename, doc, date_handler=date_encoder)
     with open(filename, "r", encoding="utf-8") as f:
         actual = f.read()
     assert actual == json_doc
@@ -47,4 +47,25 @@ def test_load_json(json_doc, expected):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(json_doc, f)
     actual = load_json(filename)
+    assert actual == expected
+
+
+datasets = [
+    (
+        ('{"_id": "first", "date": "2021-05-01", "name": "me", "test_list": [5, 4]}\n{"_id": "second"}'),
+        {
+            "first": {"_id": "first", "name": "me", "date": datetime.date(2021, 5, 1), "test_list": [5, 4]},
+            "second": {"_id": "second"},
+        },
+    ),
+]
+
+
+@pytest.mark.parametrize("json_col, expected", datasets)
+def test_load_json_collection(json_col, expected):
+    temp_dir = Path(tempfile.gettempdir())
+    filename = temp_dir / "test.json"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.writelines(json_col)
+    actual = load_json_collection(filename)
     assert actual == expected

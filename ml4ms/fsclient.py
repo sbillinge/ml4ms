@@ -79,18 +79,33 @@ def load_json(filename):
     return docs
 
 
+def load_json_collection(filename):
+    """Loads a collection in hte form of a set of json objects, one per line in the
+     file and returns a dict of its documents.
+
+    Expects one document per line in the file with the form:
+    {'_id': '<id>', 'field1':'value1', 'field2':'value2'}
+    """
+    docs = {}
+    with open(filename, encoding="utf-8") as fh:
+        lines = fh.readlines()
+    for line in lines:
+        doc = json.loads(line)
+        docs[doc["_id"]] = doc
+        try:
+            doc["date"] = datetime.date.fromisoformat(doc["date"])
+        except KeyError:
+            pass
+    return docs
+
+
 def date_encoder(obj):
     if isinstance(obj, (datetime.date, datetime.datetime)):
         return obj.isoformat()
 
 
-def date_decoder(obj):
-    if isinstance(obj, (datetime.date, datetime.datetime)):
-        return obj.isoformat()
-
-
-def dump_json(filename, docs, date_handler=None):
-    """Dumps a dict of documents into a file."""
+def dump_json_collection(filename, docs, date_handler=None):
+    """Dumps a dict of documents into a file as a list of json objects"""
     docs = sorted(docs.values(), key=_id_key)
     lines = [json.dumps(doc, sort_keys=True, default=date_handler) for doc in docs]
     s = "\n".join(lines)
@@ -138,7 +153,7 @@ def json_to_yaml(inp, out):
 def yaml_to_json(inp, out, loader=None):
     """Converts a YAML file to a JSON one."""
     docs = load_yaml(inp, loader=loader)
-    dump_json(out, docs)
+    dump_json_collection(out, docs)
 
 
 class FileSystemClient:
@@ -207,7 +222,7 @@ class FileSystemClient:
     def dump_json(self, docs, collname, dbpath):
         """Dumps json docs and returns filename"""
         f = os.path.join(dbpath, collname + ".json")
-        dump_json(f, docs)
+        dump_json_collection(f, docs)
         filename = os.path.split(f)[-1]
         return filename
 

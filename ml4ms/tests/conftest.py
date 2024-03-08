@@ -14,7 +14,7 @@ import pytest
 # from xonsh.lib import subprocess
 # from xonsh.lib.os import rmtree
 #
-from ml4ms.fsclient import dump_json, dump_yaml
+from ml4ms.fsclient import dump_json_collection, dump_yaml
 from ml4ms.schemas import EXEMPLARS
 
 OUTPUT_FAKE_DB = True  # always turn it to false after you used it
@@ -467,7 +467,7 @@ def exemplars_to_fs_json(fspath, collection_list=None):
             d = {dd["_id"]: dd for dd in example}
         else:
             d = {example["_id"]: example}
-        dump_json("{}.json".format(coll), d)
+        dump_json_collection("{}.json".format(coll), d)
     os.chdir(cwd)
 
 
