@@ -46,6 +46,11 @@ datasets = [
 def test_merge_new_data(old_ds, new_ds, expected):
     rc = RunControl()
     rc.client = FileSystemClient(rc)
+    rc.databases = [{"name": "test_db", "url": ".", "path": "db"}]
     rc.client.dbs["test_db"]["test_coll"] = old_ds
-    merge_new_data(rc, "test_db", "test_coll", new_ds)
+    # test with db passed
+    merge_new_data(rc, "test_coll", new_ds, db=rc.databases[0])
+    assert rc.client.dbs["test_db"]["test_coll"] == expected
+    # test the default behavior with no db passed
+    merge_new_data(rc, "test_coll", new_ds)
     assert rc.client.dbs["test_db"]["test_coll"] == expected

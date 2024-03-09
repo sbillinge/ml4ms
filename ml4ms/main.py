@@ -46,13 +46,12 @@ def tricode(rc):
     Although the infrastructure allows connecting to more than one db, I think we will only ever be connecting
     to one, so code below is written on that basis (active db is always rc.databases[0])
     """
-    rc.db = rc.databases[0]
     client = rc.client
     db = rc.client[rc.db.get("name")]
     if rc.ingest is not None:
         datafile = Path(rc.ingest)
         docs = load_json(datafile)
-        merge_new_data(rc, rc.db.get("name"), rc.colls[0], docs)
+        merge_new_data(rc, rc.colls[0], docs)
 
     # some example code:
     #     print("print the collection called test_coll from the test_db database")
@@ -67,13 +66,13 @@ def tricode(rc):
     # find a document by a filter
     print("\n")
     print("find id1 by filtering for the (first) doc with name test1")
-    found_doc = client.find_one("tri_db", "coll1", {"_id": "mp-5020"})
+    found_doc = client.find_one("coll1", {"_id": "mp-5020"})
     print(found_doc)
 
     # update something in an existing doc
     # print("\n")
     # print("update id1 after finding it with the filter")
-    # client.update_one("tri_db", "test_coll", {"name": "test1"}, {"description": "updated description"})
+    # client.update_one("test_coll", {"name": "test1"}, {"description": "updated description"})
     # print(client["tri_db"]["coll1"])
 
 
