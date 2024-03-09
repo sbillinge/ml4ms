@@ -47,41 +47,34 @@ def tricode(rc):
     to one, so code below is written on that basis (active db is always rc.databases[0])
     """
     rc.db = rc.databases[0]
+    client = rc.client
+    db = rc.client[rc.db.get("name")]
     if rc.ingest is not None:
         datafile = Path(rc.ingest)
         docs = load_json(datafile)
         merge_new_data(rc, rc.db.get("name"), rc.colls[0], docs)
 
+    # some example code:
+    #     print("print the collection called test_coll from the test_db database")
+    #     print(db["coll1"])
 
-# some example code:
-#     client = rc.client
-#     print("print the collection called test_coll from the test_db database")
-#     print(client["test_db"]["default_coll"])
-#
-#     # add a new doc to test_coll
-#     print("\n")
-#     print("test_coll after the new doc is added")
-#     newdoc = {"_id": "id_new", "name": "name_new", "newthing": "new_newthing"}
-#     client.insert_one("test_db", "test_coll", newdoc)
-#     print(client["tri_db"]["default_coll"])
-#
-#     # get a document using its id
-#     print("\n")
-#     print("get id1 by using its id")
-#     found_doc = client["tri_db"]["default_coll"].get("id1")
-#     print(found_doc)
-#
-#     # find a document by a filter
-#     print("\n")
-#     print("find id1 by filtering for the (first) doc with name test1")
-#     found_doc = client.find_one("tri_db", "default_coll", {"name": "test1"})
-#     print(found_doc)
-#
-#     # update something in an existing doc
-#     print("\n")
-#     print("update id1 after finding it with the filter")
-#     client.update_one("test_db", "test_coll", {"name": "test1"}, {"description": "updated description"})
-#     print(client["tri_db"]["default_coll"])
+    # get a document using its id
+    print("\n")
+    print("get id1 by using its id")
+    found_doc = db["coll1"].get("mp-5020")
+    print(found_doc)
+
+    # find a document by a filter
+    print("\n")
+    print("find id1 by filtering for the (first) doc with name test1")
+    found_doc = client.find_one("tri_db", "coll1", {"_id": "mp-5020"})
+    print(found_doc)
+
+    # update something in an existing doc
+    # print("\n")
+    # print("update id1 after finding it with the filter")
+    # client.update_one("tri_db", "test_coll", {"name": "test1"}, {"description": "updated description"})
+    # print(client["tri_db"]["coll1"])
 
 
 if __name__ == "__main__":
