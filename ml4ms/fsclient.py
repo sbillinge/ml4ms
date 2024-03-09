@@ -220,7 +220,7 @@ class FileSystemClient:
         to_add = []
         for collname, collection in self.dbs[db["name"]].items():
             # print("dumping " + collname + "...", file=sys.stderr)
-            filetype = self._collfiletypes.get(collname, "yaml")
+            filetype = self._collfiletypes.get(collname, "json")
             if filetype == "json":
                 filename = self.dump_json(collection, collname, dbpath)
             elif filetype == "yaml":
