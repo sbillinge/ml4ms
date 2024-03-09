@@ -57,3 +57,9 @@ jobs:
           set -vxeuo pipefail
           coverage run -m pytest -vv -s
           coverage report -m
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Billingegroup/ml4ms
