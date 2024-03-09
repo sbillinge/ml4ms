@@ -10,9 +10,6 @@ def load_json(filename):
     """
     docs = {}
     with open(filename, "r", encoding="utf-8") as fh:
-        #     lines = fh.readlines()
-        # for line in lines:
-        #     doc = json.loads(line)
         docs = json.load(fh)
     for key, doc in docs.items():
         try:
