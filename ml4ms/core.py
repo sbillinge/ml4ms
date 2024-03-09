@@ -23,7 +23,9 @@ class Dataset:
 
 
 def merge_new_data(rc, db, coll, new_coll):
-    for doc in new_coll.values():
+    for key, doc in new_coll.items():
+        if doc.get("_id") is None:
+            doc["_id"] = key
         if doc.get("_id") in rc.client[db][coll].keys():
             rc.client.update_one(db, coll, {"_id": doc["_id"]}, doc)
         else:

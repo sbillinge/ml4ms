@@ -31,6 +31,12 @@ datasets = [
         {"1": {"_id": "1", "a": 2}, "3": {"_id": "3"}},
         {"new_key": {"_id": "new_key"}},
         {"1": {"_id": "1", "a": 2}, "3": {"_id": "3"}, "new_key": {"_id": "new_key"}},
+    ),
+    # test data with no "_id"
+    (
+        {"1": {"_id": "1", "a": 2}, "3": {"_id": "3"}},
+        {"new_key": {"thing1key": "thing1value"}},
+        {"1": {"_id": "1", "a": 2}, "3": {"_id": "3"}, "new_key": {"_id": "new_key", "thing1key": "thing1value"}},
     )
     # anything else to test?
 ]
