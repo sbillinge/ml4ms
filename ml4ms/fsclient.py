@@ -15,7 +15,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 
-def dbpathname(db):
+def dbpathname(db=None):
     dbdir = Path(db["url"])
     dbpath = dbdir / db["path"]
     return dbpath
@@ -124,7 +124,7 @@ def dump_yaml(filename, docs, inst=None):
 
 
 def json_to_yaml(inp, out):
-    """Converts a JSON file to a YAML one."""
+    """Converts a JSON collection file to a YAML one."""
     docs = load_json_collection(inp)
     dump_yaml(out, docs)
 
@@ -157,9 +157,15 @@ class FileSystemClient:
             self.chained_db = {}
             self.closed = False
 
-    def load_json(self, db, dbpath):
-        """Loads the JSON part of a database."""
+    def load_json(self, db=None):
+        """Loads the JSON collection part of a database.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
         dbs = self.dbs
+        dbpath = dbpathname(db)
         for f in [
             file
             for file in iglob(os.path.join(dbpath, "*.json"))
@@ -173,9 +179,15 @@ class FileSystemClient:
             print("loading " + f + "...", file=sys.stderr)
             dbs[db["name"]][base] = load_json_collection(f)
 
-    def load_yaml(self, db, dbpath):
-        """Loads the YAML part of a database."""
+    def load_yaml(self, db=None):
+        """Loads the YAML part of a database.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
         dbs = self.dbs
+        dbpath = dbpathname(db)
         for f in [
             file
             for file in iglob(os.path.join(dbpath, "*.y*ml"))
@@ -192,29 +204,51 @@ class FileSystemClient:
             dbs[db["name"]][base] = coll
             self._yamlinsts[dbpath, base] = inst
 
-    def load_database(self, db):
-        """Loads a database."""
+    def load_database(self, db=None):
+        """Loads a database.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
         dbpath = dbpathname(db)
         self.load_json(db, dbpath)
         self.load_yaml(db, dbpath)
 
-    def dump_json(self, docs, collname, dbpath):
-        """Dumps json docs and returns filename"""
+    def dump_json(self, docs, collname, db=None):
+        """Dumps json docs and returns filename
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
+        dbpath = dbpathname(db)
         f = os.path.join(dbpath, collname + ".json")
         dump_json_collection(f, docs)
         filename = os.path.split(f)[-1]
         return filename
 
-    def dump_yaml(self, docs, collname, dbpath):
-        """Dumps json docs and returns filename"""
+    def dump_yaml(self, docs, collname, db=None):
+        """Dumps json docs and returns filename
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
+        dbpath = dbpathname(db)
         f = os.path.join(dbpath, collname + self._collexts.get(collname, ".yaml"))
         inst = self._yamlinsts.get((dbpath, collname), None)
         dump_yaml(f, docs, inst=inst)
         filename = os.path.split(f)[-1]
         return filename
 
-    def dump_database(self, db):
-        """Dumps a database back to the filesystem."""
+    def dump_database(self, db=None):
+        """Dumps a database back to the filesystem.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
         dbpath = dbpathname(db)
         os.makedirs(dbpath, exist_ok=True)
         to_add = []
@@ -222,9 +256,9 @@ class FileSystemClient:
             # print("dumping " + collname + "...", file=sys.stderr)
             filetype = self._collfiletypes.get(collname, "json")
             if filetype == "json":
-                filename = self.dump_json(collection, collname, dbpath)
+                filename = self.dump_json(collection, collname, db)
             elif filetype == "yaml":
-                filename = self.dump_yaml(collection, collname, dbpath)
+                filename = self.dump_yaml(collection, collname, db)
             else:
                 raise ValueError("did not recognize file type for regolith")
             to_add.append(os.path.join(db["path"], filename))
@@ -240,8 +274,14 @@ class FileSystemClient:
     def __getitem__(self, key):
         return self.dbs[key]
 
-    def collection_names(self, dbname, include_system_collections=True):
-        """Returns the collaction names for a database."""
+    def collection_names(self, db=None, include_system_collections=True):
+        """Returns the collection names for a database.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0].get("name")
+        dbname = db.get("name")
         return set(self.dbs[dbname].keys())
 
     def all_documents(self, collname, copy=True):
@@ -250,24 +290,48 @@ class FileSystemClient:
             return deepcopy(self.chained_db.get(collname, {})).values()
         return self.chained_db.get(collname, {}).values()
 
-    def insert_one(self, dbname, collname, doc):
-        """Inserts one document to a database/collection."""
+    def insert_one(self, collname, doc, db=None):
+        """Inserts one document to a database/collection.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0]
+        dbname = db.get("name")
         coll = self.dbs[dbname][collname]
         coll[doc["_id"]] = doc
 
-    def insert_many(self, dbname, collname, docs):
-        """Inserts many documents into a database/collection."""
+    def insert_many(self, collname, docs, db=None):
+        """Inserts many documents into a database/collection.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0]
+        dbname = db.get("name")
         coll = self.dbs[dbname][collname]
         for doc in docs:
             coll[doc["_id"]] = doc
 
-    def delete_one(self, dbname, collname, doc):
-        """Removes a single document from a collection"""
+    def delete_one(self, collname, doc, db=None):
+        """Removes a single document from a collection
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0]
+        dbname = db.get("name")
         coll = self.dbs[dbname][collname]
         del coll[doc["_id"]]
 
-    def find_one(self, dbname, collname, filter):
-        """Finds the first document matching filter."""
+    def find_one(self, collname, filter, db=None):
+        """Finds the first document matching filter.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0]
+        dbname = db.get("name")
         coll = self.dbs[dbname][collname]
         for doc in coll.values():
             matches = True
@@ -278,8 +342,14 @@ class FileSystemClient:
             if matches:
                 return doc
 
-    def update_one(self, dbname, collname, filter, update, **kwargs):
-        """Updates one document."""
+    def update_one(self, collname, filter, update, db=None, **kwargs):
+        """Updates one document.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db is None:
+            db = self.rc.databases[0]
+        dbname = db.get("name")
         coll = self.dbs[dbname][collname]
         doc = self.find_one(dbname, collname, filter)
         newdoc = dict(filter if doc is None else doc)
