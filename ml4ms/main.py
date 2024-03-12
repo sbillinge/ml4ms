@@ -5,8 +5,10 @@ from pathlib import Path
 
 from ml4ms.core import merge_new_data
 from ml4ms.database import connect
-from ml4ms.io import load_json
+from ml4ms.io import load_mp_payload
 from ml4ms.runcontrol import DEFAULT_RC, load_rcfile
+from ml4ms.schemas import load_schemas, validate
+from ml4ms.tools import update_schemas
 
 
 def create_parser():
@@ -14,18 +16,83 @@ def create_parser():
     p.add_argument(
         "--ingest", help="filename and path of pure json format file to add to our database", default=None
     )
+    p.add_argument("--validate", help="validate the given collection against the schema", default=None)
     return p
+
+
+# def validate(rc):
+#     """Validate the combined database against the schemas"""
+#     from ml4ms.schemas import validate
+#
+#     print("=" * 10 + "\nVALIDATING\n")
+#     any_errors = False
+#     if getattr(rc, "collection"):
+#         db = {rc.collection: rc.client.chained_db[rc.collection]}
+#     else:
+#         db = rc.client.chained_db
+#     # loop over all the collections in the db
+#     for name, collection in db.items():
+#         errored_print = False
+#         for doc in collection:
+#             v = validate(doc.get("schema"), doc, rc.schemas)
+#             if v[0] is False:
+#                 if errored_print is False:
+#                     errored_print = True
+#                     any_errors = True
+#                     print(f"Errors found in {name}")
+#                     print("=" * len(f"Errors found in {name}"))
+#                 print(f"ERROR in {doc_id}:")
+#                 pprint(v[1])
+#                 cap = copy(v[1])
+#                 for vv in v[1]:
+#                     pprint(doc.get(vv))
+#                 print("-" * 15)
+#                 print("\n")
+#     if not any_errors:
+#         print("\nNO ERRORS IN DBS\n" + "=" * 15)
+#     else:
+#         # uncomment when debugging scheme errors
+#         #
+#         # sys.exit(f"Validation failed on some records\n {cap}")
+#         sys.exit(f"Validation failed on some records")
 
 
 def main(args=None):
     rc = copy.copy(DEFAULT_RC)
-    parser = create_parser()
-    args = parser.parse_args()
-    if os.path.exists(rc.user_config):
+    try:
         rc._update(load_rcfile(rc.user_config))
+    except AttributeError:
+        raise AttributeError(
+            f"ERROR: couldn't find user.  Please create file {rc.user_config} with, at "
+            f"least, {{'user_name': '<your name>', 'user_email': '<your email>'}}"
+        )
+    print(rc.__dict__)
+    if rc.__dict__.get("user_name") is None:
+        raise AttributeError(
+            f"ERROR: couldn't find user_name.  Please add "
+            f"{{'user_name': '<your name>', 'user_email': '<your email>'}} to your user.json "
+            f"file: {rc.user_config}"
+        )
+    if rc.__dict__.get("user_email") is None:
+        raise AttributeError(
+            f"ERROR: couldn't find user_email.  Please add "
+            f"{{'user_name': '<your name>', 'user_email': '<your email>'}} to your user.json "
+            f"file: {rc.user_config}"
+        )
     if os.path.exists("ml4msrc.json"):
         rc._update(load_rcfile("ml4msrc.json"))
+    parser = create_parser()
+    args = parser.parse_args()
     rc._update(args.__dict__)
+    if "schemas" in rc._dict:
+        user_schema = copy.deepcopy(rc.schemas)
+        default_schema = copy.deepcopy(load_schemas())
+        rc.schemas = update_schemas(default_schema, user_schema)
+    else:
+        rc.schemas = load_schemas()
+    if rc.validate is not None:
+        validate(rc.collection)
+        exit()
     with connect(rc, colls=None) as rc.client:
         tricode(rc)
     return rc
@@ -47,10 +114,10 @@ def tricode(rc):
     to one, so code below is written on that basis (active db is always rc.databases[0])
     """
     client = rc.client
-    db = rc.client[rc.db.get("name")]
+    db = rc.client.db
     if rc.ingest is not None:
         datafile = Path(rc.ingest)
-        docs = load_json(datafile)
+        docs = load_mp_payload(datafile)
         merge_new_data(rc, rc.colls[0], docs)
 
     # some example code:

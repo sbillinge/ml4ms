@@ -1,0 +1,19 @@
+{
+    "materials_data": {
+        "_id": {"type": "string", "description": "a universally unique identifier"},
+        "schema": {"type": "string", "description": "the schema type of collection for validation: 'materials_data'"}
+    },
+    "trials": {
+        "_id": {"type": "string", "description": "a universally unique identifier"},
+        "schema": {"type": "string", "description": "the schema type of collection for validation: 'trials'"},
+        "datetime": {"type": "string", "description": "the datetime when the trial was dumped in iso format"},
+        "trial_descr": {"type": "string", "description": "a memorable description of the trial"},
+        "data_sample_filters": {
+            "type": "list",
+            "description": "list of filters used to sample the materials collection"
+        },
+        "feature_filters": {"type": "list", "description": "the list of features to use from each material"},
+        "models_list": {"type": "list", "description": "the list of models to use"},
+        "metadata": {"type": "string", "description": "any metadata needed"}
+    }
+}

@@ -1,7 +1,8 @@
 import json
 import os
 import tempfile
-from copy import deepcopy
+
+# from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -14,8 +15,9 @@ import pytest
 # from xonsh.lib import subprocess
 # from xonsh.lib.os import rmtree
 #
-from ml4ms.fsclient import dump_json_collection, dump_yaml
-from ml4ms.schemas import EXEMPLARS
+# from ml4ms.fsclient import dump_json_collection, dump_yaml
+
+# from ml4ms.schemas import EXEMPLARS
 
 OUTPUT_FAKE_DB = True  # always turn it to false after you used it
 # Currently the first two must be named test solely to match the helper map test output text
@@ -54,7 +56,7 @@ def make_db():
         )
     fspath = test_location / "db"
     os.mkdir(fspath)
-    exemplars_to_fs_json(fspath)
+    # exemplars_to_fs_json(fspath)
     yield test_location
     os.chdir(cwd)
     # if not OUTPUT_FAKE_DB:
@@ -436,40 +438,40 @@ def make_db():
 #                   f'\"db.shutdownServer()\"\" into command line manually')
 
 
-@pytest.fixture(scope="session")
-def exemplars_to_fs_yml(fspath, collection_list=None):
-    exemplars_copy = deepcopy(EXEMPLARS)
-    if collection_list is None:
-        exemplars = exemplars_copy
-    else:
-        exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
-    cwd = os.getcwd()
-    os.chdir(fspath)
-    for coll, example in exemplars.items():
-        if isinstance(example, list):
-            d = {dd["_id"]: dd for dd in example}
-        else:
-            d = {example["_id"]: example}
-        dump_yaml("{}.yaml".format(coll), d)
-    os.chdir(cwd)
+# @pytest.fixture(scope="session")
+# def exemplars_to_fs_yml(fspath, collection_list=None):
+#     exemplars_copy = deepcopy(EXEMPLARS)
+#     if collection_list is None:
+#         exemplars = exemplars_copy
+#     else:
+#         exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
+#     cwd = os.getcwd()
+#     os.chdir(fspath)
+#     for coll, example in exemplars.items():
+#         if isinstance(example, list):
+#             d = {dd["_id"]: dd for dd in example}
+#         else:
+#             d = {example["_id"]: example}
+#         dump_yaml("{}.yaml".format(coll), d)
+#     os.chdir(cwd)
 
 
-def exemplars_to_fs_json(fspath, collection_list=None):
-    exemplars_copy = deepcopy(EXEMPLARS)
-    if collection_list is None:
-        exemplars = exemplars_copy
-    else:
-        exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
-    cwd = os.getcwd()
-    os.chdir(fspath)
-    for coll, example in exemplars.items():
-        if isinstance(example, list):
-            d = {dd["_id"]: dd for dd in example}
-        else:
-            d = {example["_id"]: example}
-        dump_json_collection("{}.json".format(coll), d)
-    os.chdir(cwd)
-
+# def exemplars_to_fs_json(fspath, collection_list=None):
+#     exemplars_copy = deepcopy(EXEMPLARS)
+#     if collection_list is None:
+#         exemplars = exemplars_copy
+#     else:
+#         exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
+#     cwd = os.getcwd()
+#     os.chdir(fspath)
+#     for coll, example in exemplars.items():
+#         if isinstance(example, list):
+#             d = {dd["_id"]: dd for dd in example}
+#         else:
+#             d = {example["_id"]: example}
+#         dump_json_collection("{}.json".format(coll), d)
+#     os.chdir(cwd)
+#
 
 # def exemplars_to_mongo(mongo_db_name, collection_list=None):
 #     exemplars_copy = deepcopy(EXEMPLARS)

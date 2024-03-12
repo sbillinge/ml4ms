@@ -2,16 +2,15 @@
 import os
 from contextlib import contextmanager
 
-from ml4ms.chained_db import ChainDB
 from ml4ms.fsclient import FileSystemClient
 
 
-def load_local_database(db, client, rc):
+def load_local_database(db_info, client, rc):
     """Loads a local database"""
     # make sure that we expand user stuff
-    db["url"] = os.path.expanduser(db["url"])
+    db_info["url"] = os.path.expanduser(db_info["url"])
     # import all of the data
-    client.load_database(db)
+    client.load_database(db_info)
 
 
 def load_mongo_database(db, client):
@@ -19,16 +18,16 @@ def load_mongo_database(db, client):
     client.load_database(db)
 
 
-def load_database(db, client, rc):
+def load_database(db_info, client, rc):
     """Loads a database"""
     if rc.client in ("mongo", "mongodb"):
-        load_mongo_database(db, client)
+        load_mongo_database(db_info, client)
         return
-    url = db["url"]
+    url = db_info["url"]
     if os.path.exists(os.path.expanduser(url)):
-        load_local_database(db, client, rc)
+        load_local_database(db_info, client, rc)
     else:
-        raise ValueError("Do not know how to load this kind of database: " "{}".format(db))
+        raise ValueError("Do not know how to load this kind of database: " "{}".format(db_info))
 
 
 def dump_local_database(db, client, rc):
@@ -38,14 +37,14 @@ def dump_local_database(db, client, rc):
     return
 
 
-def dump_database(db, client, rc):
+def dump_database(db_info, client, rc):
     """Dumps a database"""
     # do not dump mongo db
     if rc.client in ("mongo", "mongodb"):
         return
-    url = db["url"]
+    url = db_info["url"]
     if os.path.exists(url):
-        dump_local_database(db, client, rc)
+        dump_local_database(db_info, client, rc)
     else:
         raise ValueError("Do not know how to dump this kind of database")
 
@@ -57,13 +56,13 @@ def open_dbs(rc, colls=None):
     ----------
     rc : RunControl instance
         The rc which has links to the dbs
-    dbs: set or None, optional
-        The databases to load. If None load all, defaults to None
+    colls: set or None, optional
+        The collections to load. If None load all, defaults to None
 
     Returns
     -------
     client : {FileSystemClient, MongoClient}
-        The database client
+        The database client containing connected dbs
     """
     if colls is None:
         colls = []
@@ -72,18 +71,15 @@ def open_dbs(rc, colls=None):
     else:  # we only have one client atm...but may want to change to mongo later
         client = FileSystemClient(rc)
     client.open()
-    chained_db = {}
-    for db in rc.databases:
-        load_database(db, client, rc)
-        for base, coll in client.dbs[db["name"]].items():
-            if base not in chained_db:
-                chained_db[base] = {}
-            for k, v in coll.items():
-                if k in chained_db[base]:
-                    chained_db[base][k].maps.append(v)
-                else:
-                    chained_db[base][k] = ChainDB(v)
-    client.chained_db = chained_db
+    db_dict = {}
+    # for db in rc.database:
+    load_database(rc.database_info, client, rc)
+    # loop over all the collections
+    for base, coll in client.db.items():
+        db_dict[base] = {}
+        for k, v in coll.items():
+            db_dict[base][k] = v
+    client.loaded_db = db_dict
     return client
 
 
@@ -93,6 +89,5 @@ def connect(rc, colls=None):
     down"""
     client = open_dbs(rc, colls=colls)
     yield client
-    for db in rc.databases:
-        dump_database(db, client, rc)
+    dump_database(rc.database_info, client, rc)
     client.close()
