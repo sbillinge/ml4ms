@@ -1,11 +1,15 @@
 import json
 import os
 import tempfile
+from copy import deepcopy
 
 # from copy import deepcopy
 from pathlib import Path
 
 import pytest
+
+from ml4ms.fsclient import dump_json_collection, dump_yaml
+from ml4ms.schemas import load_exemplars
 
 # from pymongo import MongoClient
 # from pymongo import errors as mongo_errors
@@ -17,12 +21,13 @@ import pytest
 #
 # from ml4ms.fsclient import dump_json_collection, dump_yaml
 
-# from ml4ms.schemas import EXEMPLARS
 
-OUTPUT_FAKE_DB = True  # always turn it to false after you used it
+EXEMPLARS = load_exemplars()
+print(EXEMPLARS)
+OUTPUT_FAKE_DB = False  # always turn it to false after you used it
 # Currently the first two must be named test solely to match the helper map test output text
 REGOLITH_MONGODB_NAME = "test"
-FS_DB_NAME = "test"
+FS_COLL_NAME = "test"
 ALTERNATE_REGOLITH_MONGODB_NAME = "mongo_test"
 
 
@@ -35,28 +40,25 @@ def make_db():
     cwd = Path(__file__).parent
     test_location = Path(tempfile.gettempdir())
     os.chdir(test_location)
-    with open("regolithrc.json", "w") as f:
+    with open("ml4ms.json", "w") as f:
         json.dump(
             {
-                "default_user_id": "sbillinge",
-                "groupname": "ERGS",
-                "databases": [
-                    {
-                        "name": "test",
-                        "url": test_location,
-                        "public": True,
-                        "path": "db",
-                        "local": True,
-                        "backend": "filesystem",
-                    }
-                ],
-                "tokens": [{"_id": "gitlab_private_token", "token": "<private_token>"}],
+                "user_name": "simon billinge",
+                "user_email": "sb2222@columbia.edu"
+                # "database_info": {
+                #         "name": "test",
+                #         "url": test_location,
+                #         "public": True,
+                #         "path": "db",
+                #         "local": True,
+                #         "backend": "filesystem"
+                #     },
+                # "tokens": [{"_id": "gitlab_private_token", "token": "<private_token>"}],
             },
             f,
         )
     fspath = test_location / "db"
-    os.mkdir(fspath)
-    # exemplars_to_fs_json(fspath)
+    exemplars_to_fs_json(fspath)
     yield test_location
     os.chdir(cwd)
     # if not OUTPUT_FAKE_DB:
@@ -438,40 +440,40 @@ def make_db():
 #                   f'\"db.shutdownServer()\"\" into command line manually')
 
 
-# @pytest.fixture(scope="session")
-# def exemplars_to_fs_yml(fspath, collection_list=None):
-#     exemplars_copy = deepcopy(EXEMPLARS)
-#     if collection_list is None:
-#         exemplars = exemplars_copy
-#     else:
-#         exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
-#     cwd = os.getcwd()
-#     os.chdir(fspath)
-#     for coll, example in exemplars.items():
-#         if isinstance(example, list):
-#             d = {dd["_id"]: dd for dd in example}
-#         else:
-#             d = {example["_id"]: example}
-#         dump_yaml("{}.yaml".format(coll), d)
-#     os.chdir(cwd)
+@pytest.fixture(scope="session")
+def exemplars_to_fs_yml(fspath, collection_list=None):
+    exemplars_copy = deepcopy(EXEMPLARS)
+    if collection_list is None:
+        exemplars = exemplars_copy
+    else:
+        exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
+    cwd = os.getcwd()
+    os.chdir(fspath)
+    for coll, example in exemplars.items():
+        if isinstance(example, list):
+            d = {dd["_id"]: dd for dd in example}
+        else:
+            d = {example["_id"]: example}
+        dump_yaml("{}.yaml".format(coll), d)
+    os.chdir(cwd)
 
 
-# def exemplars_to_fs_json(fspath, collection_list=None):
-#     exemplars_copy = deepcopy(EXEMPLARS)
-#     if collection_list is None:
-#         exemplars = exemplars_copy
-#     else:
-#         exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
-#     cwd = os.getcwd()
-#     os.chdir(fspath)
-#     for coll, example in exemplars.items():
-#         if isinstance(example, list):
-#             d = {dd["_id"]: dd for dd in example}
-#         else:
-#             d = {example["_id"]: example}
-#         dump_json_collection("{}.json".format(coll), d)
-#     os.chdir(cwd)
-#
+def exemplars_to_fs_json(fspath, collection_list=None):
+    exemplars_copy = deepcopy(EXEMPLARS)
+    if collection_list is None:
+        exemplars = exemplars_copy
+    else:
+        exemplars = {k: exemplars_copy[k] for k in collection_list if k in exemplars_copy}
+    cwd = os.getcwd()
+    os.chdir(fspath)
+    for coll, example in exemplars.items():
+        if isinstance(example, list):
+            d = {dd["_id"]: dd for dd in example}
+        else:
+            d = {example["_id"]: example}
+        dump_json_collection(f"{coll}.json", d)
+    os.chdir(cwd)
+
 
 # def exemplars_to_mongo(mongo_db_name, collection_list=None):
 #     exemplars_copy = deepcopy(EXEMPLARS)

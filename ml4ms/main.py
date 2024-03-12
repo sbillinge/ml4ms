@@ -16,7 +16,7 @@ def create_parser():
     p.add_argument(
         "--ingest", help="filename and path of pure json format file to add to our database", default=None
     )
-    p.add_argument("--validate", help="validate the given collection against the schema", default=None)
+    p.add_argument("--validate", nargs="+", help="validate the given collection against the schema", default=None)
     return p
 
 
@@ -57,7 +57,7 @@ def create_parser():
 #         sys.exit(f"Validation failed on some records")
 
 
-def main(args=None):
+def main(rc, args=None):
     rc = copy.copy(DEFAULT_RC)
     try:
         rc._update(load_rcfile(rc.user_config))
@@ -91,7 +91,7 @@ def main(args=None):
     else:
         rc.schemas = load_schemas()
     if rc.validate is not None:
-        validate(rc.collection)
+        validate(rc.validate)
         exit()
     with connect(rc, colls=None) as rc.client:
         tricode(rc)
