@@ -257,7 +257,7 @@ class FileSystemClient:
         return to_add
 
     def close(self):
-        self.client.db = None
+        self.db = None
         self.closed = True
 
     def keys(self):
