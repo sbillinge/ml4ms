@@ -85,6 +85,8 @@ def date_encoder(obj):
 
 def dump_json_collection(filename, docs, date_handler=None):
     """Dumps a dict of documents into a file as a list of json objects"""
+    if date_handler is None:
+        date_handler = date_encoder
     docs = sorted(docs.values(), key=_id_key)
     lines = [json.dumps(doc, sort_keys=True, default=date_handler) for doc in docs]
     s = "\n".join(lines)
@@ -211,9 +213,8 @@ class FileSystemClient:
         """
         if db is None:
             db = self.rc.databases[0].get("name")
-        dbpath = dbpathname(db)
-        self.load_json(db, dbpath)
-        self.load_yaml(db, dbpath)
+        self.load_json(db=db)
+        self.load_yaml(db=db)
 
     def dump_json(self, docs, collname, db=None):
         """Dumps json docs and returns filename

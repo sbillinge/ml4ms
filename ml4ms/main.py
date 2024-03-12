@@ -5,7 +5,7 @@ from pathlib import Path
 
 from ml4ms.core import merge_new_data
 from ml4ms.database import connect
-from ml4ms.io import load_json
+from ml4ms.io import load_mp_payload
 from ml4ms.runcontrol import DEFAULT_RC, load_rcfile
 
 
@@ -47,10 +47,11 @@ def tricode(rc):
     to one, so code below is written on that basis (active db is always rc.databases[0])
     """
     client = rc.client
+    rc.db = rc.databases[0]
     db = rc.client[rc.db.get("name")]
     if rc.ingest is not None:
         datafile = Path(rc.ingest)
-        docs = load_json(datafile)
+        docs = load_mp_payload(datafile)
         merge_new_data(rc, rc.colls[0], docs)
 
     # some example code:
