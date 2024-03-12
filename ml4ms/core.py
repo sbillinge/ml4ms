@@ -113,17 +113,17 @@ def clone_trial(rc, collection=None, trial_id=None, db=None):
     return Trial(**trial_json)
 
 
-def merge_new_data(rc, coll, new_coll, db=None):
-    if db is None:
-        db = rc.default_db
-    dbname = db.get("name")
+def merge_new_data(rc, coll, new_coll, db_info=None):
+    if db_info is None:
+        db_info = rc.database_info
+    dbname = db_info.get("name")
     for key, doc in new_coll.items():
         if doc.get("_id") is None:
             doc["_id"] = key
         if doc.get("_id") in rc.client[dbname][coll].keys():
-            rc.client.update_one(coll, {"_id": doc["_id"]}, doc, db=db)
+            rc.client.update_one(coll, {"_id": doc["_id"]}, doc)
         else:
-            rc.client.insert_one(coll, doc, db=db)
+            rc.client.insert_one(coll, doc)
 
 
 def clone_collection(rc, db, existing_coll, new_coll_name=None):
