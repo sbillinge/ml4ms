@@ -1,0 +1,10 @@
+{
+    "test_coll": [{
+        "_id": "first_doc",
+        "schema": "materials_data",
+        "name": "me",
+        "date": "2021-05-01",
+        "test_list": [5, 4]
+    }],
+    "test_coll2": [{"_id": "second_doc", "schema": "materials_data"}]
+}
