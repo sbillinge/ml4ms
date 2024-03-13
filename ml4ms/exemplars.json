@@ -5,6 +5,22 @@
         "name": "me",
         "date": "2021-05-01",
         "test_list": [5, 4]
-    }],
-    "test_coll2": [{"_id": "second_doc", "schema": "materials_data"}]
+    },
+        {
+        "_id": "second_doc",
+        "schema": "materials_data",
+        "name": "him"
+        }],
+    "test_coll2": [{"_id": "second_col_first_doc", "schema": "materials_data"}],
+    "test_trial_coll": [{
+        "_id": "first_doc",
+        "schema": "trials",
+        "name": "me",
+        "datetime": "2021-05-01",
+        "trial_descr": "str",
+        "feature_filters": ["spectrum"],
+        "data_sample_filters": [{"material_id": "Ti"}],
+        "models_list": ["random_forest"],
+        "metadata": {"test": "valid"}
+    }]
 }

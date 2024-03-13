@@ -5,6 +5,7 @@ from copy import deepcopy
 
 # from copy import deepcopy
 from pathlib import Path
+from shutil import rmtree
 
 import pytest
 
@@ -23,7 +24,6 @@ from ml4ms.schemas import load_exemplars
 
 
 EXEMPLARS = load_exemplars()
-print(EXEMPLARS)
 OUTPUT_FAKE_DB = False  # always turn it to false after you used it
 # Currently the first two must be named test solely to match the helper map test output text
 REGOLITH_MONGODB_NAME = "test"
@@ -40,11 +40,12 @@ def make_db():
     cwd = Path(__file__).parent
     test_location = Path(tempfile.gettempdir())
     os.chdir(test_location)
-    with open("ml4ms.json", "w") as f:
+    with open("ml4msrc.json", "w") as f:
         json.dump(
             {
                 "user_name": "simon billinge",
                 "user_email": "sb2222@columbia.edu",
+                "client": "fs",
                 "database_info": {
                     "name": "test",
                     "url": ".",
@@ -57,12 +58,14 @@ def make_db():
             },
             f,
         )
+    print(test_location)
     fspath = test_location / "db"
+    fspath.mkdir(parents=True, exist_ok=True)
     exemplars_to_fs_json(fspath)
     yield test_location
     os.chdir(cwd)
-    # if not OUTPUT_FAKE_DB:
-    #     rmtree(repo)
+    if not OUTPUT_FAKE_DB:
+        rmtree(fspath)
 
 
 #

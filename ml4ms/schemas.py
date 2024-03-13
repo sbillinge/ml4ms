@@ -16,9 +16,10 @@ def load_schemas():
 def load_exemplars():
     here = Path(__file__).parent
     exemplars_file = here / "exemplars.json"
+    print(here)
     with open(exemplars_file, "r", encoding="utf-8") as exemplars_file:
-        EXEMPLARS = json.load(exemplars_file)
-    return EXEMPLARS
+        exemplars = json.load(exemplars_file)
+    return exemplars
 
 
 def validate(colltype, record, schemas):
@@ -41,10 +42,10 @@ def validate(colltype, record, schemas):
         The errors encountered (if any)
 
     """
-
     if colltype in schemas:
-        schema = copy.deepcopy(schemas[colltype])
+        print(f"Validating {colltype} with schema {schemas.get(colltype)}")
+        schema = copy.deepcopy(schemas.get(colltype))
         # v = NoDescriptionValidator(schema)
-        return jsonschema.validate(instance=record, schema=schema)
-    else:
-        return True, ()
+        jsonschema.validate(instance=record, schema=schema)
+    # else:
+    #     return True, ()

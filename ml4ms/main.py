@@ -78,11 +78,11 @@ def main(args=None):
             f"{{'user_name': '<your name>', 'user_email': '<your email>'}} to your user.json "
             f"file: {rc.user_config}"
         )
-    if os.path.exists("ml4msrc.json"):
-        rc._update(load_rcfile("ml4msrc.json"))
     parser = create_parser()
     args = parser.parse_args(args)
     rc._update(args.__dict__)
+    if os.path.exists("ml4msrc.json"):
+        rc._update(load_rcfile("ml4msrc.json"))
     if "schemas" in rc._dict:
         user_schema = copy.deepcopy(rc.schemas)
         default_schema = copy.deepcopy(load_schemas())
@@ -92,8 +92,10 @@ def main(args=None):
     with connect(rc, colls=None) as rc.client:
         if rc.validate:
             for collection in rc.client.db:
-                colltype = collection.get("schema")
-                validate(colltype, collection, rc.schemas)
+                for doc in rc.client.db[collection].values():
+                    colltype = doc.get("schema")
+                    validate(colltype, doc, rc.schemas)
+            return rc
         tricode(rc)
     return rc
 
