@@ -26,7 +26,7 @@ def validate(colltype, record, schemas):
 
     Parameters
     ----------
-    coll : str
+    colltype : str
         The name of the db in question
     record : dict
         The record to be validated

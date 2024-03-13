@@ -12,7 +12,7 @@ def test_validate_python(make_db):
     os.chdir(repo)
     backup = sys.stdout
     sys.stdout = StringIO()
-    main(["--validate", "test_corr"])
+    main(args=["--validate"])
     out = sys.stdout.getvalue()
     sys.stdout.close()
     sys.stdout = backup

@@ -44,15 +44,15 @@ def make_db():
         json.dump(
             {
                 "user_name": "simon billinge",
-                "user_email": "sb2222@columbia.edu"
-                # "database_info": {
-                #         "name": "test",
-                #         "url": test_location,
-                #         "public": True,
-                #         "path": "db",
-                #         "local": True,
-                #         "backend": "filesystem"
-                #     },
+                "user_email": "sb2222@columbia.edu",
+                "database_info": {
+                    "name": "test",
+                    "url": ".",
+                    "public": True,
+                    "path": "db",
+                    "local": True,
+                    "backend": "filesystem",
+                }
                 # "tokens": [{"_id": "gitlab_private_token", "token": "<private_token>"}],
             },
             f,
