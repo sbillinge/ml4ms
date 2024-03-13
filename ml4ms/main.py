@@ -62,10 +62,7 @@ def main(args=None):
     try:
         rc._update(load_rcfile(rc.user_config))
     except AttributeError:
-        raise AttributeError(
-            f"ERROR: couldn't find user.  Please create file {rc.user_config} with, at "
-            f"least, {{'user_name': '<your name>', 'user_email': '<your email>'}}"
-        )
+        pass
     if rc.__dict__.get("user_name") is None:
         raise AttributeError(
             f"ERROR: couldn't find user_name.  Please add "

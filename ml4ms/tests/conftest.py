@@ -58,7 +58,6 @@ def make_db():
             },
             f,
         )
-    print(test_location)
     fspath = test_location / "db"
     fspath.mkdir(parents=True, exist_ok=True)
     exemplars_to_fs_json(fspath)
