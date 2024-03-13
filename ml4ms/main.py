@@ -61,8 +61,10 @@ def main(args=None):
     rc = copy.copy(DEFAULT_RC)
     try:
         rc._update(load_rcfile(rc.user_config))
-    except AttributeError:
+    except FileNotFoundError:
         pass
+    if os.path.exists("ml4msrc.json"):
+        rc._update(load_rcfile("ml4msrc.json"))
     if rc.__dict__.get("user_name") is None:
         raise AttributeError(
             f"ERROR: couldn't find user_name.  Please add "
@@ -78,8 +80,6 @@ def main(args=None):
     parser = create_parser()
     args = parser.parse_args(args)
     rc._update(args.__dict__)
-    if os.path.exists("ml4msrc.json"):
-        rc._update(load_rcfile("ml4msrc.json"))
     if "schemas" in rc._dict:
         user_schema = copy.deepcopy(rc.schemas)
         default_schema = copy.deepcopy(load_schemas())
