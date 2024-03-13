@@ -1,23 +1,18 @@
-# import os
-# import sys
-# from io import StringIO
-#
-# import pytest
-#
-# from ml4ms.main import main
-#
-#
-# def test_validate_python(make_db):
-#     repo = make_db
-#     os.chdir(repo)
-#     backup = sys.stdout
-#     sys.stdout = StringIO()
-#     main(["validate"])
-#     out = sys.stdout.getvalue()
-#     sys.stdout.close()
-#     sys.stdout = backup
-#     assert "NO ERRORS IN DBS" in out
-#
+import os
+from pathlib import Path
+
+from ml4ms.main import main
+
+
+def test_validate_python(make_db):
+    test_location = make_db
+    test_location = Path(test_location)
+    os.chdir(test_location)
+    main(args=["--validate"])
+    # jsonschema.validate will fail with an error if the exemplars do not validate.
+    assert True
+
+
 #
 # def test_validate_python_single_col(make_db):
 #     """

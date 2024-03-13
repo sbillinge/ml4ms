@@ -16,7 +16,7 @@ def create_parser():
     p.add_argument(
         "--ingest", help="filename and path of pure json format file to add to our database", default=None
     )
-    p.add_argument("--validate", help="validate the given collection against the schema", default=None)
+    p.add_argument("--validate", action="store_true", help="validate all the collections against the schema")
     return p
 
 
@@ -61,12 +61,10 @@ def main(args=None):
     rc = copy.copy(DEFAULT_RC)
     try:
         rc._update(load_rcfile(rc.user_config))
-    except AttributeError:
-        raise AttributeError(
-            f"ERROR: couldn't find user.  Please create file {rc.user_config} with, at "
-            f"least, {{'user_name': '<your name>', 'user_email': '<your email>'}}"
-        )
-    print(rc.__dict__)
+    except FileNotFoundError:
+        pass
+    if os.path.exists("ml4msrc.json"):
+        rc._update(load_rcfile("ml4msrc.json"))
     if rc.__dict__.get("user_name") is None:
         raise AttributeError(
             f"ERROR: couldn't find user_name.  Please add "
@@ -79,10 +77,8 @@ def main(args=None):
             f"{{'user_name': '<your name>', 'user_email': '<your email>'}} to your user.json "
             f"file: {rc.user_config}"
         )
-    if os.path.exists("ml4msrc.json"):
-        rc._update(load_rcfile("ml4msrc.json"))
     parser = create_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     rc._update(args.__dict__)
     if "schemas" in rc._dict:
         user_schema = copy.deepcopy(rc.schemas)
@@ -90,10 +86,13 @@ def main(args=None):
         rc.schemas = update_schemas(default_schema, user_schema)
     else:
         rc.schemas = load_schemas()
-    if rc.validate is not None:
-        validate(rc.collection)
-        exit()
     with connect(rc, colls=None) as rc.client:
+        if rc.validate:
+            for collection in rc.client.db:
+                for doc in rc.client.db[collection].values():
+                    colltype = doc.get("schema")
+                    validate(colltype, doc, rc.schemas)
+            return rc
         tricode(rc)
     return rc
 
