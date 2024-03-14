@@ -4,6 +4,8 @@ from pathlib import Path
 
 import jsonschema
 
+from ml4ms.fsclient import date_encoder
+
 
 def load_schemas():
     here = Path(__file__).parent
@@ -16,7 +18,6 @@ def load_schemas():
 def load_exemplars():
     here = Path(__file__).parent
     exemplars_file = here / "exemplars.json"
-    print(here)
     with open(exemplars_file, "r", encoding="utf-8") as exemplars_file:
         exemplars = json.load(exemplars_file)
     return exemplars
@@ -43,8 +44,10 @@ def validate(colltype, record, schemas):
 
     """
     if colltype in schemas:
-        print(f"Validating {colltype} with schema {schemas.get(colltype)}")
+        # print(f"Validating {colltype} with schema {schemas.get(colltype)}")
         schema = copy.deepcopy(schemas.get(colltype))
+        for key, value in record.items():
+            record[key] = date_encoder(value)
         # v = NoDescriptionValidator(schema)
         jsonschema.validate(instance=record, schema=schema)
     # else:

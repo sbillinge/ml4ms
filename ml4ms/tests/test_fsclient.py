@@ -4,7 +4,24 @@ from pathlib import Path
 
 import pytest
 
+from ml4ms.database import connect
 from ml4ms.fsclient import date_encoder, dump_json_collection, load_json_collection
+from ml4ms.runcontrol import RunControl
+from ml4ms.schemas import load_schemas
+
+TEST_RC_JSON = {
+    "user_name": "simon",
+    "user_email": "simon@here.now",
+    "client": "fs",
+    "database_info": {
+        "name": "test",
+        "url": ".",
+        "path": "db",
+    },
+}
+test_rc = RunControl()
+test_rc._update(TEST_RC_JSON)
+test_rc.schemas = load_schemas()
 
 
 def test_date_encoder():
@@ -47,3 +64,20 @@ def test_load_json_collection(json_col, expected):
         f.writelines(json_col)
     actual = load_json_collection(filename)
     assert actual == expected
+
+
+def test_fsc_getitem(make_db):
+    with connect(test_rc, colls=None) as test_rc.client:
+        test_rc.db = test_rc.client
+
+        assert test_rc.db["test_coll"] == {
+            "first_doc": {
+                "_id": "first_doc",
+                "schema": "materials_data",
+                "name": "me",
+                "date": datetime.date(2021, 5, 1),
+                "datetime": datetime.datetime(2021, 5, 1),
+                "test_list": [5, 4],
+            },
+            "second_doc": {"_id": "second_doc", "schema": "materials_data", "name": "him"},
+        }

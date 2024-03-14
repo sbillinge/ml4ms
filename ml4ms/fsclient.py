@@ -55,7 +55,7 @@ def _rec_re_type(i):
 
 
 def _id_key(doc):
-    return doc["_id"]
+    return doc.get("_id")
 
 
 def load_json_collection(filename):
@@ -65,22 +65,28 @@ def load_json_collection(filename):
     Expects one document per line in the file with the form:
     {'_id': '<id>', 'field1':'value1', 'field2':'value2'}
     """
-    docs = {}
     with open(filename, encoding="utf-8") as fh:
         lines = fh.readlines()
+    docs = {}
     for line in lines:
         doc = json.loads(line)
-        docs[doc["_id"]] = doc
         try:
             doc["date"] = datetime.date.fromisoformat(doc["date"])
         except KeyError:
             pass
+        try:
+            doc["datetime"] = datetime.datetime.fromisoformat(doc["datetime"])
+        except KeyError:
+            pass
+        docs[doc["_id"]] = doc
     return docs
 
 
 def date_encoder(obj):
     if isinstance(obj, (datetime.date, datetime.datetime)):
         return obj.isoformat()
+    else:
+        return obj
 
 
 def dump_json_collection(filename, docs, date_handler=None):
@@ -158,9 +164,13 @@ class FileSystemClient:
             self.chained_db = {}
             self.closed = False
 
-    def load_json(self, db_info):
-        """Loads the JSON collection part of a database."""
-        self.db
+    def load_json(self, db_info=None):
+        """Loads the JSON collection part of a database.
+
+        If no db is passed, take the first database in rc.databases
+        """
+        if db_info is None:
+            db_info = self.rc.database_info.get("name")
         dbpath = dbpathname(db_info)
         for f in [
             file
@@ -181,7 +191,7 @@ class FileSystemClient:
         If no db is passed, take the first database in rc.databases
         """
         if db_info is None:
-            db_info = self.rc.database.get("name")
+            db_info = self.rc.database_info.get("name")
         dbpath = dbpathname(db_info)
         for f in [
             file
@@ -261,7 +271,7 @@ class FileSystemClient:
         self.closed = True
 
     def keys(self):
-        return self.client.db.keys()
+        return self.db.keys()
 
     def __getitem__(self, key):
         return self.db[key]
@@ -328,6 +338,24 @@ class FileSystemClient:
                     break
             if matches:
                 return doc
+
+    def find(self, collname, filter, db=None):
+        """Finds and returns all the documents matching filter.
+
+        If no db is passed, take the database in rc.client
+        """
+        if db is None:
+            db = self.rc.db
+        coll = db[collname]
+        matches = []
+        for doc in coll.values():
+            if filter == {}:
+                matches.append(doc)
+            else:
+                for key, value in filter.items():
+                    if key in doc and doc[key] == value:
+                        matches.append(doc)
+        return matches
 
     def update_one(self, collname, filter, update, db=None, **kwargs):
         """Updates one document.

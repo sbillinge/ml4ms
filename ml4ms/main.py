@@ -20,43 +20,6 @@ def create_parser():
     return p
 
 
-# def validate(rc):
-#     """Validate the combined database against the schemas"""
-#     from ml4ms.schemas import validate
-#
-#     print("=" * 10 + "\nVALIDATING\n")
-#     any_errors = False
-#     if getattr(rc, "collection"):
-#         db = {rc.collection: rc.client.chained_db[rc.collection]}
-#     else:
-#         db = rc.client.chained_db
-#     # loop over all the collections in the db
-#     for name, collection in db.items():
-#         errored_print = False
-#         for doc in collection:
-#             v = validate(doc.get("schema"), doc, rc.schemas)
-#             if v[0] is False:
-#                 if errored_print is False:
-#                     errored_print = True
-#                     any_errors = True
-#                     print(f"Errors found in {name}")
-#                     print("=" * len(f"Errors found in {name}"))
-#                 print(f"ERROR in {doc_id}:")
-#                 pprint(v[1])
-#                 cap = copy(v[1])
-#                 for vv in v[1]:
-#                     pprint(doc.get(vv))
-#                 print("-" * 15)
-#                 print("\n")
-#     if not any_errors:
-#         print("\nNO ERRORS IN DBS\n" + "=" * 15)
-#     else:
-#         # uncomment when debugging scheme errors
-#         #
-#         # sys.exit(f"Validation failed on some records\n {cap}")
-#         sys.exit(f"Validation failed on some records")
-
-
 def main(args=None):
     rc = copy.copy(DEFAULT_RC)
     try:
@@ -87,9 +50,10 @@ def main(args=None):
     else:
         rc.schemas = load_schemas()
     with connect(rc, colls=None) as rc.client:
+        rc.db = rc.client
         if rc.validate:
-            for collection in rc.client.db:
-                for doc in rc.client.db[collection].values():
+            for collection in rc.client.db.values():
+                for doc in collection.values():
                     colltype = doc.get("schema")
                     validate(colltype, doc, rc.schemas)
             return rc
@@ -112,28 +76,33 @@ def tricode(rc):
     Although the infrastructure allows connecting to more than one db, I think we will only ever be connecting
     to one, so code below is written on that basis (active db is always rc.databases[0])
     """
-    client = rc.client
-    db = rc.client.db
     if rc.ingest is not None:
         datafile = Path(rc.ingest)
         docs = load_mp_payload(datafile)
         merge_new_data(rc, rc.colls[0], docs)
 
-    # some example code:
-    #     print("print the collection called test_coll from the test_db database")
-    #     print(db["coll1"])
-
-    # get a document using its id
-    print("\n")
-    print("get id1 by using its id")
-    found_doc = db["coll1"].get("mp-5020")
-    print(found_doc)
-
     # find a document by a filter
-    print("\n")
-    print("find id1 by filtering for the (first) doc with name test1")
-    found_doc = client.find_one("coll1", {"_id": "mp-5020"})
-    print(found_doc)
+    # print("\n")
+    # print("find id1 by filtering for the (first) doc with _id mp-5020")
+    # found_doc = rc.db.find_one("coll1", {"_id": "mp-5020"})
+    # print(found_doc)
+    #
+    # # get all the documents in a collection (don't be tempted to use this)
+    # print("\n")
+    # print("get all the documents in a collection that match a filter, e.g., {'absorbing_element': 'Ti'}")
+    # found_doc = rc.db.find("coll1", {"absorbing_element": "Ti"})
+    # print(found_doc)
+
+    # some example code:
+    # print("print the collection called test_coll from the test_db database")
+    # print(rc.db["coll1"])
+
+    # # get all the documents in a collection (don't be tempted to use this)
+    # print("\n")
+    # print("get all the documents in a collection. Don't be tempted to use this, build queries with filters, not "
+    #       "with for-loops)")
+    # found_doc = rc.db.find("coll1", {})
+    # print(found_doc)
 
     # update something in an existing doc
     # print("\n")

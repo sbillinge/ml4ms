@@ -456,7 +456,7 @@ def exemplars_to_fs_yml(fspath, collection_list=None):
             d = {dd["_id"]: dd for dd in example}
         else:
             d = {example["_id"]: example}
-        dump_yaml("{}.yaml".format(coll), d)
+        dump_yaml(f"{coll}.yaml", d)
     os.chdir(cwd)
 
 

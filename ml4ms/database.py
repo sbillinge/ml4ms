@@ -71,15 +71,14 @@ def open_dbs(rc, colls=None):
     else:  # we only have one client atm...but may want to change to mongo later
         client = FileSystemClient(rc)
     client.open()
-    db_dict = {}
-    # for db in rc.database:
     load_database(rc.database_info, client, rc)
-    # loop over all the collections
-    for base, coll in client.db.items():
-        db_dict[base] = {}
-        for k, v in coll.items():
-            db_dict[base][k] = v
-    client.loaded_db = db_dict
+    # add this back if we want to deliver the collections in the form of dicts instead of generators
+    # db_dict = {}
+    # for base, coll in client.db.items():
+    #     db_dict[base] = {}
+    #     for k, v in coll:
+    #         db_dict[base][k] = v
+    # client.db_dict = db_dict
     return client
 
 
