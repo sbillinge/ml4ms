@@ -70,7 +70,7 @@ def load_rcfile(fname):
     return rc
 
 
-DEFAULT_RC = RunControl(database=[], user_config=os.path.expanduser("~/.config/ml4ms/user.json"))
+DEFAULT_RC = RunControl(db=None, database=[], user_config=os.path.expanduser("~/.config/ml4ms/user.json"))
 
 #
 #  {'databases': [
