@@ -10,7 +10,7 @@
             "schema": {
                 "type": "string",
                 "description": "the schema type of collection for validation: 'materials_data'"
-            },
+            }
         },
         "required": ["_id", "schema"]
 
